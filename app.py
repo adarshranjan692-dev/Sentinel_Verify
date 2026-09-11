@@ -32,8 +32,8 @@ from trustid import (
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR / "Frontend"
-DATABASE = BASE_DIR / "screening.db"
-UPLOAD_DIR = BASE_DIR / "uploads"
+DATABASE = Path(os.environ.get("DATABASE_PATH", str(BASE_DIR / "screening.db")))
+UPLOAD_DIR = Path(os.environ.get("UPLOAD_DIR", str(BASE_DIR / "uploads")))
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "pdf"}
 ALLOWED_MIME_TYPES = {"image/png", "image/jpeg", "image/webp", "application/pdf"}
 MAX_UPLOAD_SIZE = 10 * 1024 * 1024
@@ -56,7 +56,10 @@ if TESSERACT_CMD:
 
 def executable_available(path_or_name):
     if path_or_name:
-        return Path(path_or_name).exists()
+        path = Path(path_or_name)
+        if path.is_dir():
+            return (path / "pdftoppm").exists() or (path / "pdftoppm.exe").exists()
+        return path.exists()
     return False
 
 
@@ -1025,7 +1028,7 @@ def risk_score():
 @login_required
 def screening_history():
     connection = get_db()
-    rows = connection.execute("SELECT screening_id, created_at AS date, document_type, risk_score, status, CASE WHEN status = 'Verified' THEN 'No' ELSE 'Yes' END AS review_required FROM documents ORDER BY created_at DESC").fetchall()
+    rows = connection.execute("SELECT screening_id, created_at AS date, document_type, risk_score, status, CASE WHEN status = 'Verified' THEN 'No' ELSE 'Yes' END AS review_required FROM documents ORDER BY id DESC").fetchall()
     connection.close()
     return jsonify([dict(row) for row in rows])
 
@@ -1049,7 +1052,7 @@ def screening(screening_id):
 @login_required
 def dashboard_stats():
     connection = get_db()
-    rows = connection.execute("SELECT * FROM documents ORDER BY created_at DESC").fetchall()
+    rows = connection.execute("SELECT * FROM documents ORDER BY id DESC").fetchall()
     connection.close()
     scores = [row["risk_score"] for row in rows]
     return jsonify({
@@ -1278,4 +1281,8 @@ init_db()
 seed_demo_data()
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    app.run(
+        debug=False,
+        host=os.environ.get("HOST", "127.0.0.1"),
+        port=int(os.environ.get("PORT", "5000")),
+    )

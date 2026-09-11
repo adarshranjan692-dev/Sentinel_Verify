@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+*.pyo
+.env
+*.log
+.pytest_cache
+.vscode
+Dockerfile
+compose.yaml

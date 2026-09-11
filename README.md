@@ -2,6 +2,31 @@
 
 A Flask, SQLite and Bootstrap 5 decision-support application for authorized security personnel. It combines real OCR/OpenCV evidence with deterministic risk scoring and an optional, governed Logistic Regression screening signal. ML never replaces deterministic evidence or human verification.
 
+## Run with Docker
+
+Prerequisites: Docker Desktop and Git. Python, Tesseract, Poppler, NumPy, OpenCV, scikit-learn, and pip are installed inside the image.
+
+```powershell
+git clone https://github.com/adarshranjan692-dev/Sentinel_Verify.git
+cd Sentinel_Verify
+docker compose up --build
+```
+
+Open http://localhost:5000. Docker installs Linux Tesseract and Poppler automatically, publishes Flask on `0.0.0.0:5000`, and persists `screening.db`, `uploads/`, and `models/` through the project-directory mounts. The container health check uses `/diagnostics`.
+
+Useful commands:
+
+```powershell
+docker compose up -d
+docker compose ps
+docker compose logs -f
+docker compose down
+```
+
+`docker compose down` stops and removes the container but does not delete the persisted database, uploads, or model artifacts. Do not use volume-removal commands for the normal demo workflow.
+
+For custom secrets, copy `.env.example` to `.env` and set `SENTINEL_SECRET_KEY`. Docker supplies Linux defaults for `TESSERACT_CMD=/usr/bin/tesseract` and `POPPLER_PATH=/usr/bin`; these must not be replaced with Windows paths.
+
 ## Installation and environment
 
 ```powershell

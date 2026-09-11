@@ -1,0 +1,21 @@
+services:
+  trustid:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: trustid:local
+    ports:
+      - "5000:5000"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 5000
+      TESSERACT_CMD: /usr/bin/tesseract
+      POPPLER_PATH: /usr/bin
+      SENTINEL_SECRET_KEY: ${SENTINEL_SECRET_KEY:-}
+      DATABASE_PATH: /app/screening.db
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - ./screening.db:/app/screening.db
+      - ./uploads:/app/uploads
+      - ./models:/app/models
+    restart: unless-stopped
