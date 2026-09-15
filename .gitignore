@@ -1,0 +1,17 @@
+# Local runtime data
+screening.db
+uploads/
+models/
+!uploads/.gitkeep
+!models/.gitkeep
+
+# Python / environment
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Secrets / local config
+.env
+.env.*
